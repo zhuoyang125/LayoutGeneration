@@ -6,7 +6,7 @@ from torch.utils.data import Dataset
 import seaborn as sns
 
 from utils import os_utils
-from .load import load_publaynet_data, load_rico_data
+from .load import load_publaynet_data, load_rico_data, load_infographic_data
 
 
 class LayoutDataset(Dataset):
@@ -156,3 +156,13 @@ class RicoDataset(LayoutDataset):
     def load_raw_data(self) -> list:
         return load_rico_data(self.raw_dir, self.max_num_elements,
                               self.label_set, self.label2index(self.label_set))
+
+class InfographicDataset(LayoutDataset):
+    labels = ['text', 'image', 'chart']
+    def __init__(self, root: str, split: str, max_num_elements: int, online_process: bool=True):
+        data_name = 'infographic'
+        print(self.labels)
+        super().__init__(root, data_name, split, max_num_elements, label_set=self.labels, online_process=online_process)
+
+    def load_raw_data(self) -> list:
+        return load_infographic_data(self.raw_dir)

@@ -6,7 +6,7 @@ import torch
 import torch.nn.functional as F
 from transformers import PreTrainedTokenizer
 
-from data import RicoDataset, PubLayNetDataset
+from data import RicoDataset, PubLayNetDataset, InfographicDataset
 from model import LayoutTransformerTokenizer
 from tasks.refinement import T5LayoutSequence
 from tasks.gen_r import RelationTypes, T5LayoutSequenceForGenR
@@ -25,6 +25,8 @@ def create_tokenizer(tasks: List[str], dataset: str, discrete_grid: int,
         _dataset = RicoDataset
     elif dataset == 'publaynet':
         _dataset = PubLayNetDataset
+    elif dataset == 'infographic':
+        _dataset = InfographicDataset
     else:
         raise NotImplementedError(f"No dataset: {dataset}")
     label2index_fn = _dataset.label2index(_dataset.labels)
@@ -136,6 +138,32 @@ def create_dataset(args, tokenizer: PreTrainedTokenizer, task_config: Dict,
                                                                          sort_by_pos=sort_by_pos)
         else:
             return multitask.T5PubLayNetMultiTaskRotationDataset(args, tokenizer, task_config, split, online_process=True,
+                                                                 remove_too_long_layout=remove_too_long_layout,
+                                                                 sort_by_pos=sort_by_pos)
+    elif args.dataset == 'infographic':
+        if split == 'train':
+            if args.partition_training_data:
+                return multitask.T5PubLayNetMultiTaskPartitionDataset(args, tokenizer, task_config, split, online_process=True,
+                                                                      remove_too_long_layout=remove_too_long_layout, sort_by_pos=sort_by_pos,
+                                                                      task_buckets=args.partition_training_data_task_buckets)
+            elif args.fine_grained_partition_training_data:
+                return multitask.T5PubLayNetMultiTaskFineGrainedPartitionDataset(args, tokenizer, task_config, split, online_process=True,
+                                                                                 remove_too_long_layout=remove_too_long_layout, sort_by_pos=sort_by_pos,
+                                                                                 task_data_size=args.fine_grained_partition_training_data_task_size,
+                                                                                 task_weights=args.task_weights)
+            else:
+                if args.single_task_per_batch:
+                    return multitask.T5InfographicMultiTaskConcatDataset(
+                        args, tokenizer, task_config, split, online_process=True,
+                        remove_too_long_layout=remove_too_long_layout,
+                        sort_by_pos=sort_by_pos
+                    )
+                else:
+                    return multitask.T5InfographicMultiTaskSamplingDataset(args, tokenizer, task_config, split, online_process=True,
+                                                                         remove_too_long_layout=remove_too_long_layout,
+                                                                         sort_by_pos=sort_by_pos)
+        else:
+            return multitask.T5InfographicMultiTaskRotationDataset(args, tokenizer, task_config, split, online_process=True,
                                                                  remove_too_long_layout=remove_too_long_layout,
                                                                  sort_by_pos=sort_by_pos)
     raise NotImplementedError("No Valid Dataset")

@@ -3,7 +3,7 @@ import numpy as np
 import random
 from collections import defaultdict
 
-from data import RicoDataset, PubLayNetDataset
+from data import RicoDataset, PubLayNetDataset, InfographicDataset
 
 
 class T5MultiTaskDataset:
@@ -369,6 +369,57 @@ class T5PubLayNetMultiTaskPartitionDataset(T5MultiTaskPartitionDataset, PubLayNe
 
 
 class T5PubLayNetMultiTaskFineGrainedPartitionDataset(T5MultiTaskFineGrainedPartitionDataset, PubLayNetDataset):
+    def __init__(self, args, tokenizer, task_config, split, online_process=True,
+                 remove_too_long_layout: bool = False, sort_by_pos: bool = True,
+                 task_data_size: str = None, task_weights: str = None) -> None:
+        super().__init__(args, tokenizer, task_config=task_config, sort_by_pos=sort_by_pos,
+                         task_data_size=task_data_size, task_weights=task_weights,
+                         root=args.data_dir, split=split,
+                         max_num_elements=args.max_num_elements,
+                         online_process=online_process)
+
+class T5InfographicMultiTaskSamplingDataset(T5MultiTaskSamplingDataset, InfographicDataset):
+    def __init__(self, args, tokenizer, task_config, split, online_process=True,
+                 remove_too_long_layout: bool = False, sort_by_pos: bool = True) -> None:
+        super().__init__(args, tokenizer, task_config=task_config,
+                         sort_by_pos=sort_by_pos,
+                         root=args.data_dir, split=split,
+                         max_num_elements=args.max_num_elements,
+                         online_process=online_process)
+
+
+class T5InfographicMultiTaskConcatDataset(T5MultiTaskConcatDataset, InfographicDataset):
+    def __init__(self, args, tokenizer, task_config, split, online_process=True,
+                 remove_too_long_layout: bool = False, sort_by_pos: bool = True) -> None:
+        super().__init__(args, tokenizer, task_config=task_config,
+                         sort_by_pos=sort_by_pos,
+                         root=args.data_dir, split=split,
+                         max_num_elements=args.max_num_elements,
+                         online_process=online_process)
+
+
+class T5InfographicMultiTaskRotationDataset(T5MultiTaskRotationDataset, InfographicDataset):
+    def __init__(self, args, tokenizer, task_config, split, online_process=True,
+                 remove_too_long_layout: bool = False, sort_by_pos: bool = True) -> None:
+        super().__init__(args, tokenizer, task_config=task_config,
+                         sort_by_pos=sort_by_pos,
+                         root=args.data_dir, split=split,
+                         max_num_elements=args.max_num_elements,
+                         online_process=online_process)
+
+
+class T5InfographicMultiTaskPartitionDataset(T5MultiTaskPartitionDataset, InfographicDataset):
+    def __init__(self, args, tokenizer, task_config, split, online_process=True,
+                 remove_too_long_layout: bool = False, sort_by_pos: bool = True,
+                 task_buckets: str = None) -> None:
+        super().__init__(args, tokenizer, task_config=task_config,
+                         sort_by_pos=sort_by_pos, task_buckets=task_buckets,
+                         root=args.data_dir, split=split,
+                         max_num_elements=args.max_num_elements,
+                         online_process=online_process)
+
+
+class T5InfographicMultiTaskFineGrainedPartitionDataset(T5MultiTaskFineGrainedPartitionDataset, InfographicDataset):
     def __init__(self, args, tokenizer, task_config, split, online_process=True,
                  remove_too_long_layout: bool = False, sort_by_pos: bool = True,
                  task_data_size: str = None, task_weights: str = None) -> None:
