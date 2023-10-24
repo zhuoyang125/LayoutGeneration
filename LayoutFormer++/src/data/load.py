@@ -174,44 +174,30 @@ def load_rico_data(raw_dir: str, max_num_elements: int,
     return split_dataset
 
 def load_infographic_data(raw_dir: str):
-    anno_name = 'output.manifest'
-    with open(os.path.join(raw_dir, anno_name), 'r') as f:
-        output = [json.loads(line.strip()) for line in f.readlines()]
-
+    max_boxes, max_path = 0, ''
     dataset = []
+    raw_dir = Path(raw_dir)
+    for json_path in sorted(raw_dir.glob('*.json')):
+        with json_path.open() as f:
+            ann = json.load(f)
 
-    for datum_id, datum in enumerate(output):
-        if 'infographic-dataset' not in datum:
-            continue
-        uri = datum['source-ref']
-        box_annotations = datum['infographic-dataset']['annotations']
-
-        image_size = datum['infographic-dataset']['image_size'][0]
-        image_width = image_size['width']
-        image_height = image_size['height']
-
+        img_h, img_w = ann['image_size']['height'], ann['image_size']['width']
         bboxes, labels = [], []
-        for i, annotation in enumerate(box_annotations):
-            # Resize all images to width:1000, height: 1685
-            class_id = annotation['class_id']
-            top = annotation['top']
-            left = annotation['left']
-            width = annotation['width']
-            height = annotation['height']
-            b = [left/image_width, top/image_height, width/image_width, height/image_height]
+
+        for a in ann['annotations']:
+            class_id, t, l, w, h = a['class_id'], a['top'], a['left'], a['width'], a['height']
+            b = [l/img_w, t/img_h, w/img_w, h/img_h]
             bboxes.append(b)
 
             labels.append(class_id + 1)
-
         bboxes = torch.tensor(bboxes, dtype=torch.float)
         labels = torch.tensor(labels, dtype=torch.long)
-        
-        data = {'name': uri, 'bboxes': bboxes, 'labels': labels, 'canvas_size': [1000, 1685], 'filtered': False}
+        if len(bboxes) > max_boxes:
+            max_boxes = len(bboxes)
+            max_path = json_path
 
+        data = {'name': ann['name'], 'bboxes': bboxes, 'labels': labels, 'canvas_size': [w, h], 'filtered': False}
         dataset.append(data)
-
-
-
 
     # shuffle with seed
     generator = torch.Generator().manual_seed(0)

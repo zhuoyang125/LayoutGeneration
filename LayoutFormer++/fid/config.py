@@ -7,16 +7,16 @@ def add_arguments(parser):
                         help='output directory')
 
     # dataset
-    parser.add_argument('--dataset', type=str, choices=['rico', 'publaynet'],
+    parser.add_argument('--dataset', type=str, choices=['rico', 'publaynet', 'infographic'],
                         help='dataset name')
-    parser.add_argument('--num_label', type=int, default=25,
+    parser.add_argument('--num_label', type=int, default=3,
                         help='number of labels')
-    parser.add_argument('--max_num_elements', type=int, default=20,
+    parser.add_argument('--max_num_elements', type=int, default=115,
                         help='max number of design elements')
 
     # hyperparameters
     parser.add_argument('--epoch', type=int, default=50, help='number of epoch to train')
-    parser.add_argument('--batch_size', type=int, default=128,
+    parser.add_argument('--batch_size', type=int, default=64,
                         help='batch size for each GPU')
     parser.add_argument('--train_log_step', type=int, default=50,
                         help='number of steps to log loss during training')

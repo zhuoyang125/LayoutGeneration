@@ -8,7 +8,6 @@ OUT_DIR=$3
 TRAINER=$4
 NUM_GPU=$5
 EVAL_CKPT_TAG=$6
-CKPT_PTH=$7
 
 if [[ $TRAINER = "deepspeed" ]]
 then
@@ -31,7 +30,7 @@ $COMMAND main.py --${MODE} --dataset infographic \
 --ugen_sort_by_pos_before_sort_by_label \
 --gen_r_discrete_before_induce_relations \
 --gen_r_sort_by_pos_before_sort_by_label \
---max_num_elements 20 \
+--max_num_elements 115 \
 --gaussian_noise_mean 0.0 \
 --gaussian_noise_std 0.01 \
 --train_bernoulli_beta 1.0 \
@@ -62,4 +61,6 @@ $COMMAND main.py --${MODE} --dataset infographic \
 --eval_ckpt_tag ${EVAL_CKPT_TAG} \
 --add_sep_token \
 --sort_by_dict \
---train_ckpt_path ${CKPT_PTH} 
+--load_vocab \
+--fid_max_num_element 115 \
+--fid_num_labels 3

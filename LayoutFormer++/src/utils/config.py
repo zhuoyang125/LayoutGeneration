@@ -18,7 +18,7 @@ def add_arguments(parser):
     # data
     parser.add_argument('--dataset', type=str, choices=['rico', 'publaynet', 'infographic'],
                         help='dataset name')
-    parser.add_argument('--max_num_elements', type=int, default=20,
+    parser.add_argument('--max_num_elements', type=int, default=115,
                         help='max number of design elements')
 
     # hyperparameters

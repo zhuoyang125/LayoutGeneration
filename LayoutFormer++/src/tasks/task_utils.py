@@ -321,4 +321,8 @@ def create_fid_model(args, device='cpu'):
         fid_model = metrics.LayoutFID(max_num_elements=args.max_num_elements, num_labels=len(PubLayNetDataset.labels),
                                       net_path=fid_net_path, device=device)
         return fid_model
+    elif args.dataset == 'infographic':
+        fid_net_path = os.path.join('net', 'fid_infographic.pth.tar')
+        fid_model = metrics.LayoutFID(max_num_elements=args.max_num_elements, num_labels=len(InfographicDataset.labels), net_path=fid_net_path, device=device)
+        return fid_model
     raise NotImplementedError("No Valid Dataset")

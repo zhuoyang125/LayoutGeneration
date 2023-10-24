@@ -21,6 +21,7 @@ class LayoutFID():
         state_dict = torch.load(net_path, map_location=device)
         # remove "module" prefix if necessary
         state = OD([(key.split("module.")[-1], state_dict[key]) for key in state_dict])
+        print(state)
 
         self.model.load_state_dict(state)
         self.model.requires_grad_(False)

@@ -161,7 +161,6 @@ class InfographicDataset(LayoutDataset):
     labels = ['text', 'image', 'chart']
     def __init__(self, root: str, split: str, max_num_elements: int, online_process: bool=True):
         data_name = 'infographic'
-        print(self.labels)
         super().__init__(root, data_name, split, max_num_elements, label_set=self.labels, online_process=online_process)
 
     def load_raw_data(self) -> list:

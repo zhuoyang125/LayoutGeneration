@@ -12,7 +12,7 @@ import torch.optim as optim
 import torchvision.transforms as T
 from torch.utils.data import DataLoader
 
-from data import RicoDataset, PubLayNetDataset, transforms
+from data import RicoDataset, PubLayNetDataset, InfographicDataset, transforms
 from utils import utils, os_utils
 from config import add_arguments
 from fid_model import LayoutNet
@@ -32,7 +32,6 @@ class RicoFidDataset(RicoDataset):
             transforms.CoordinateTransform('ltrb'),
         ]
         self.transform = T.Compose(transform_functions)
-
         super().__init__(root=args.data_dir,
                          split=split,
                          max_num_elements=args.max_num_elements,
@@ -69,6 +68,30 @@ class PubLayNetFidDataset(PubLayNetDataset):
         data = self.transform(data)
         return data
 
+class InfographicFidDataset(InfographicDataset):
+
+    def __init__(self, args, split: str, online_process: bool = True):
+        self.args = args
+
+        transform_functions = [
+            transforms.AddGaussianNoise(
+                mean=self.args.gaussian_noise_mean,
+                std=self.args.gaussian_noise_std,
+                bernoulli_beta=self.args.train_bernoulli_beta),
+            transforms.LexicographicSort(),
+            transforms.CoordinateTransform('ltrb'),
+        ]
+        self.transform = T.Compose(transform_functions)
+
+        super().__init__(root=args.data_dir,
+                         split=split,
+                         max_num_elements=args.max_num_elements,
+                         online_process=online_process)
+
+    def process(self, _data):
+        data = copy.deepcopy(_data)
+        data = self.transform(data)
+        return data
 
 def cal_loss(args, gold_bboxes, gold_labels, mask, disc, logit_cls, pred_bboxes,
              r_or_f):
@@ -126,6 +149,9 @@ def main():
     elif args.dataset == 'publaynet':
         train_dataset = PubLayNetFidDataset(args, 'train')
         val_dataset = PubLayNetFidDataset(args, 'val')
+    elif args.dataset == 'infographic':
+        train_dataset = InfographicFidDataset(args, 'train')
+        val_dataset = InfographicFidDataset(args, 'val')
 
     else:
         raise NotImplementedError
